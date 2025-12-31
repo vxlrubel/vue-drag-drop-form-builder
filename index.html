@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Drag & Drop Form Builder</title>
+
+      <!-- Font Awesome for icons -->
+      <link
+         rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+      <!-- Bootstrap CSS -->
+      <link href="./assets/css/bootstrap.min.css" rel="stylesheet" />
+
+      <link rel="stylesheet" href="./assets/css/style.css" />
+   </head>
+   <body>
+      <div id="app">
+         <div class="container-fluid">
+            <div class="row">
+               <!-- Left Sidebar - Draggable Elements -->
+               <div class="col-md-3 sidebar">
+                  <h4 class="section-title">
+                     <i class="fas fa-tools"></i> Form Elements
+                  </h4>
+
+                  <draggable
+                     v-model="fieldTypes"
+                     :group="{ name: 'fields', pull: 'clone', put: false }"
+                     :sort="false"
+                     :clone="createField"
+                     item-key="type"
+                     class="field-items"
+                     id="field-palette">
+                     <template #item="{element}">
+                        <div class="field-item" :data-type="element.type">
+                           <i :class="element.icon"></i>
+                           <span>{{ element.label }}</span>
+                        </div>
+                     </template>
+                  </draggable>
+
+                  <div class="mt-4">
+                     <button
+                        class="btn btn-outline-danger btn-sm w-100"
+                        @click="clearAll">
+                        <i class="fas fa-trash"></i> Clear All
+                     </button>
+                     <button
+                        class="btn btn-outline-primary btn-sm w-100 mt-2"
+                        @click="loadSampleData">
+                        <i class="fas fa-download"></i> Load Sample
+                     </button>
+                  </div>
+               </div>
+
+               <!-- Right Canvas - Drop Zone -->
+               <div class="col-md-9 canvas">
+                  <h4 class="section-title">
+                     <i class="fas fa-edit"></i> Form Canvas
+                  </h4>
+
+                  <draggable
+                     v-model="formFields"
+                     group="fields"
+                     item-key="uid"
+                     :animation="150"
+                     ghost-class="sortable-ghost"
+                     chosen-class="sortable-chosen"
+                     drag-class="sortable-drag"
+                     handle=".dropped-field"
+                     :class="['drop-zone', { empty: formFields.length === 0 }]"
+                     id="form-canvas">
+                     <template #item="{element: field, index}">
+                        <div
+                           class="dropped-field"
+                           :class="{ 'container-field': field.type === 'container' }">
+                           <!-- Regular Field -->
+                           <template v-if="field.type !== 'container'">
+                              <div class="field-controls">
+                                 <button
+                                    class="btn btn-sm btn-outline-primary"
+                                    @click.stop="editField(field)">
+                                    <i class="fas fa-edit"></i>
+                                 </button>
+                                 <button
+                                    class="btn btn-sm btn-outline-danger"
+                                    @click.stop="removeField(index)">
+                                    <i class="fas fa-trash"></i>
+                                 </button>
+                              </div>
+
+                              <div class="field-label">
+                                 {{ field.label }}
+                                 <span
+                                    v-if="field.required"
+                                    class="field-required"
+                                    >*</span
+                                 >
+                                 <span class="field-type-badge"
+                                    >{{ field.type }}</span
+                                 >
+                              </div>
+
+                              <input
+                                 v-if="field.type === 'text' || field.type === 'email'"
+                                 type="text"
+                                 class="form-control"
+                                 :placeholder="field.placeholder"
+                                 disabled />
+
+                              <input
+                                 v-if="field.type === 'number'"
+                                 type="number"
+                                 class="form-control"
+                                 :placeholder="field.placeholder"
+                                 disabled />
+
+                              <textarea
+                                 v-if="field.type === 'textarea' || field.type === 'paragraph'"
+                                 class="form-control"
+                                 rows="3"
+                                 :placeholder="field.placeholder"
+                                 disabled></textarea>
+
+                              <h3 v-if="field.type === 'heading'" class="h4">
+                                 {{ field.placeholder }}
+                              </h3>
+
+                              <select
+                                 v-if="field.type === 'select'"
+                                 class="form-control"
+                                 disabled>
+                                 <option>{{ field.placeholder }}</option>
+                                 <option
+                                    v-for="(option, idx) in field.options"
+                                    :key="idx">
+                                    {{ option }}
+                                 </option>
+                              </select>
+
+                              <div v-if="field.type === 'radio'">
+                                 <div
+                                    v-for="(option, idx) in field.options"
+                                    :key="idx"
+                                    class="form-check">
+                                    <input
+                                       class="form-check-input"
+                                       type="radio"
+                                       :name="field.name"
+                                       disabled />
+                                    <label class="form-check-label"
+                                       >{{ option }}</label
+                                    >
+                                 </div>
+                              </div>
+
+                              <div v-if="field.type === 'checkbox'">
+                                 <div
+                                    v-for="(option, idx) in field.options"
+                                    :key="idx"
+                                    class="form-check">
+                                    <input
+                                       class="form-check-input"
+                                       type="checkbox"
+                                       disabled />
+                                    <label class="form-check-label"
+                                       >{{ option }}</label
+                                    >
+                                 </div>
+                              </div>
+                           </template>
+
+                           <!-- Container Field -->
+                           <template v-else>
+                              <div class="field-controls">
+                                 <button
+                                    class="btn btn-sm btn-outline-success"
+                                    @click.stop="addColumn(field)">
+                                    <i class="fas fa-plus"></i> Column
+                                 </button>
+                                 <button
+                                    class="btn btn-sm btn-outline-danger"
+                                    @click.stop="removeField(index)">
+                                    <i class="fas fa-trash"></i>
+                                 </button>
+                              </div>
+
+                              <div class="field-label">
+                                 <i class="fas fa-layer-group"></i> {{
+                                 field.label }}
+                                 <span class="field-type-badge">container</span>
+                              </div>
+
+                              <div
+                                 class="container-columns"
+                                 :style="{ gridTemplateColumns: 'repeat(' + field.columns.length + ', 1fr)' }">
+                                 <div
+                                    v-for="(column, colIdx) in field.columns"
+                                    :key="colIdx"
+                                    class="container-column"
+                                    :class="{ empty: column.fields.length === 0 }">
+                                    <div class="column-controls">
+                                       <small class="text-muted"
+                                          >Column {{ colIdx + 1 }}</small
+                                       >
+                                       <button
+                                          v-if="field.columns.length > 1"
+                                          class="btn btn-sm btn-outline-danger ms-auto"
+                                          @click.stop="removeColumn(field, colIdx)">
+                                          <i class="fas fa-times"></i>
+                                       </button>
+                                    </div>
+
+                                    <draggable
+                                       v-model="column.fields"
+                                       group="fields"
+                                       item-key="uid"
+                                       :animation="150"
+                                       ghost-class="sortable-ghost"
+                                       handle=".dropped-field"
+                                       :empty-insert-threshold="50"
+                                       class="column-draggable">
+                                       <template
+                                          #item="{element: nestedField, index: nestedIdx}">
+                                          <div class="dropped-field mb-2">
+                                             <div class="field-controls">
+                                                <button
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   @click.stop="editField(nestedField)">
+                                                   <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   @click.stop="removeNestedField(field, colIdx, nestedIdx)">
+                                                   <i class="fas fa-trash"></i>
+                                                </button>
+                                             </div>
+
+                                             <div class="field-label">
+                                                {{ nestedField.label }}
+                                                <span
+                                                   v-if="nestedField.required"
+                                                   class="field-required"
+                                                   >*</span
+                                                >
+                                                <span class="field-type-badge"
+                                                   >{{ nestedField.type }}</span
+                                                >
+                                             </div>
+
+                                             <input
+                                                v-if="nestedField.type === 'text' || nestedField.type === 'email'"
+                                                type="text"
+                                                class="form-control form-control-sm"
+                                                :placeholder="nestedField.placeholder"
+                                                disabled />
+
+                                             <input
+                                                v-if="nestedField.type === 'number'"
+                                                type="number"
+                                                class="form-control form-control-sm"
+                                                :placeholder="nestedField.placeholder"
+                                                disabled />
+
+                                             <textarea
+                                                v-if="nestedField.type === 'textarea' || nestedField.type === 'paragraph'"
+                                                class="form-control form-control-sm"
+                                                rows="2"
+                                                :placeholder="nestedField.placeholder"
+                                                disabled></textarea>
+
+                                             <h5
+                                                v-if="nestedField.type === 'heading'">
+                                                {{ nestedField.placeholder }}
+                                             </h5>
+
+                                             <select
+                                                v-if="nestedField.type === 'select'"
+                                                class="form-control form-control-sm"
+                                                disabled>
+                                                <option>
+                                                   {{ nestedField.placeholder }}
+                                                </option>
+                                                <option
+                                                   v-for="(option, idx) in nestedField.options"
+                                                   :key="idx">
+                                                   {{ option }}
+                                                </option>
+                                             </select>
+
+                                             <div
+                                                v-if="nestedField.type === 'radio'">
+                                                <div
+                                                   v-for="(option, idx) in nestedField.options"
+                                                   :key="idx"
+                                                   class="form-check">
+                                                   <input
+                                                      class="form-check-input"
+                                                      type="radio"
+                                                      :name="nestedField.name"
+                                                      disabled />
+                                                   <label
+                                                      class="form-check-label small"
+                                                      >{{ option }}</label
+                                                   >
+                                                </div>
+                                             </div>
+
+                                             <div
+                                                v-if="nestedField.type === 'checkbox'">
+                                                <div
+                                                   v-for="(option, idx) in nestedField.options"
+                                                   :key="idx"
+                                                   class="form-check">
+                                                   <input
+                                                      class="form-check-input"
+                                                      type="checkbox"
+                                                      disabled />
+                                                   <label
+                                                      class="form-check-label small"
+                                                      >{{ option }}</label
+                                                   >
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </template>
+
+                                       <template
+                                          #footer
+                                          v-if="column.fields.length === 0">
+                                          <div
+                                             class="text-center text-muted py-5">
+                                             Drop fields here
+                                          </div>
+                                       </template>
+                                    </draggable>
+                                 </div>
+                              </div>
+                           </template>
+                        </div>
+                     </template>
+
+                     <template #footer v-if="formFields.length === 0">
+                        <div style="pointer-events: none">
+                           <i class="fas fa-hand-pointer"></i> Drag and drop
+                           elements here
+                        </div>
+                     </template>
+                  </draggable>
+               </div>
+            </div>
+         </div>
+
+         <!-- Export Button -->
+         <button class="btn btn-primary btn-export" @click="exportJSON">
+            <i class="fas fa-download"></i> Export JSON
+         </button>
+
+         <!-- Edit Modal -->
+         <div class="modal fade" id="editModal" tabindex="-1">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <h5 class="modal-title">Edit Field</h5>
+                     <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body" v-if="editingField">
+                     <div class="mb-3">
+                        <label class="form-label">Label</label>
+                        <input
+                           type="text"
+                           class="form-control"
+                           v-model="editingField.label" />
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">Placeholder</label>
+                        <input
+                           type="text"
+                           class="form-control"
+                           v-model="editingField.placeholder" />
+                     </div>
+                     <div
+                        class="mb-3"
+                        v-if="editingField.type === 'select' || editingField.type === 'radio' || editingField.type === 'checkbox'">
+                        <label class="form-label">Options (one per line)</label>
+                        <textarea
+                           class="form-control"
+                           rows="4"
+                           v-model="optionsText"></textarea>
+                     </div>
+                     <div class="mb-3 form-check">
+                        <input
+                           type="checkbox"
+                           class="form-check-input"
+                           id="requiredCheck"
+                           v-model="editingField.required" />
+                        <label class="form-check-label" for="requiredCheck"
+                           >Required Field</label
+                        >
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                        Close
+                     </button>
+                     <button
+                        type="button"
+                        class="btn btn-primary"
+                        @click="saveField"
+                        data-bs-dismiss="modal">
+                        Save Changes
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Vue 3 -->
+      <script src="./assets/js/vue.global.js"></script>
+      <script src="./assets/js/Sortable.min.js"></script>
+      <script src="./assets/js/vuedraggable.js"></script>
+      <script src="./assets/js/bootstrap.bundle.min.js"></script>
+      <script src="./assets/js/script.js"></script>
+   </body>
+</html>

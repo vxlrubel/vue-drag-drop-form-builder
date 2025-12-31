@@ -1,0 +1,57 @@
+{
+    // Global formatting
+    "editor.tabSize": 3,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+
+    // Prettier config
+    "prettier.tabWidth": 3,
+    "prettier.useTabs": false,
+    "prettier.bracketSameLine": true,
+    "prettier.vueIndentScriptAndStyle": true,
+
+    // Format supported languages on save
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[php]": {
+        "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+    },
+
+    // Format Blade files using Prettier plugin for Blade
+    "[blade]": {
+        "editor.defaultFormatter": "shufo.vscode-blade-formatter"
+    },
+
+    // Blade formatter plugin settings
+    "bladeFormatter.tabSize": 3,
+    "bladeFormatter.useTabs": false,
+    "bladeFormatter.wrapAttributes": "force",
+    "bladeFormatter.sortTailwindcssClasses": true,
+    "bladeFormatter.format.customHtmlAttributesOrder": "",
+    "bladeFormatter.format.sortHtmlAttributes": "none",
+    "bladeFormatter.format.sortTailwindcssClasses": true,
+    "bladeFormatter.format.useTabs": false,
+    "bladeFormatter.format.wrapAttributes": "force",
+    "bladeFormatter.format.noMultipleEmptyLines": false,
+    "prettier.jsxSingleQuote": false
+}
