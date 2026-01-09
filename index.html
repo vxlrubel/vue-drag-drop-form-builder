@@ -16,50 +16,98 @@
    </head>
    <body>
       <div id="app">
-         <div class="container-fluid">
-            <div class="row">
-               <!-- Left Sidebar - Draggable Elements -->
-               <div class="col-md-3 sidebar">
-                  <h4 class="section-title">
-                     <i class="fas fa-tools"></i> Form Elements
-                  </h4>
+         <div class="wraper">
+            <!-- leftsidebar -->
+            <div class="leftside border-end">
+               <div
+                  class="d-flex align-items-center sidebar-controls-height px-3 border-bottom">
+                  <button
+                     type="button"
+                     @click="editingField = null"
+                     :class="{
+                        'active' : !editingField
+                     }"
+                     class="btn btn-sm rounded-0 btn-outline-primary w-50">
+                     Fields
+                  </button>
+                  <button
+                     type="button"
+                     @click="editingField = {}"
+                     :class="{
+                        'active' : editingField
+                     }"
+                     class="btn btn-sm rounded-0 btn-outline-primary w-50">
+                     Field Settings
+                  </button>
+               </div>
 
+               <!-- draggable elements -->
+               <div class="sidebar-elements p-3">
                   <draggable
                      v-model="fieldTypes"
                      :group="{ name: 'fields', pull: 'clone', put: false }"
                      :sort="false"
                      :clone="createField"
                      item-key="type"
-                     class="field-items"
+                     class="draggable-field-items"
                      id="field-palette">
                      <template #item="{element}">
-                        <div class="field-item" :data-type="element.type">
-                           <i :class="element.icon"></i>
-                           <span>{{ element.label }}</span>
+                        <div
+                           class="draggable-field-item border border-primary text-center p-2"
+                           :data-type="element.type">
+                           <div class="text-primary">
+                              <i :class="element.icon"></i>
+                           </div>
+                           <div class="draggable-text">{{ element.label }}</div>
                         </div>
                      </template>
                   </draggable>
+               </div>
 
-                  <div class="mt-4">
-                     <button
-                        class="btn btn-outline-danger btn-sm w-100"
-                        @click="clearAll">
-                        <i class="fas fa-trash"></i> Clear All
-                     </button>
-                     <button
-                        class="btn btn-outline-primary btn-sm w-100 mt-2"
-                        @click="loadSampleData">
-                        <i class="fas fa-download"></i> Load Sample
-                     </button>
+               <div
+                  class="d-flex align-items-center sidebar-controls-height px-3 border-top gap-2">
+                  <button
+                     type="button"
+                     @click="clearAll"
+                     class="btn btn-sm rounded-0 btn-outline-danger px-0 w-50">
+                     Reset
+                  </button>
+                  <button
+                     type="button"
+                     @click="loadSampleData"
+                     class="btn btn-sm rounded-0 btn-outline-primary px-0 w-50">
+                     Load Form
+                  </button>
+               </div>
+            </div>
+
+            <!-- rightsidebar -->
+            <div class="rightside">
+               <div
+                  class="bg-white d-flex align-items-center form-title-height px-3 border-bottom">
+                  <div
+                     class="w-100 d-flex align-items-center justify-content-between">
+                     <div class="fs-5 fw-medium">Form Name:</div>
+                     <div class="d-flex align-items-center gap-2">
+                        <button
+                           type="button"
+                           @click="clearAll"
+                           class="btn btn-sm rounded-0 btn-danger">
+                           Clear All Fields
+                        </button>
+                        <button class="btn btn-sm btn-success rounded-0">
+                           Save Form
+                        </button>
+                        <button
+                           class="btn btn-sm btn-primary rounded-0"
+                           @click="exportJSON">
+                           <i class="fas fa-download"></i> Export JSON
+                        </button>
+                     </div>
                   </div>
                </div>
 
-               <!-- Right Canvas - Drop Zone -->
-               <div class="col-md-9 canvas">
-                  <h4 class="section-title">
-                     <i class="fas fa-edit"></i> Form Canvas
-                  </h4>
-
+               <div class="content-preview p-3">
                   <draggable
                      v-model="formFields"
                      group="fields"
@@ -452,11 +500,6 @@
                </div>
             </div>
          </div>
-
-         <!-- Export Button -->
-         <button class="btn btn-primary btn-export" @click="exportJSON">
-            <i class="fas fa-download"></i> Export JSON
-         </button>
 
          <!-- Edit Modal -->
          <div class="modal fade" id="editModal" tabindex="-1">

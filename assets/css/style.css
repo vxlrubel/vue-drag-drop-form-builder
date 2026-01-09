@@ -6,6 +6,51 @@ body {
    overflow-x: hidden;
 }
 
+.wraper {
+   --leftside-width: 250px;
+   --sidebar-control-height: 50px;
+   display: flex;
+   flex-wrap: wrap;
+
+   .leftside {
+      width: var(--leftside-width);
+      background: #fff;
+      height: 100dvh;
+      .sidebar-controls-height {
+         height: var(--sidebar-control-height);
+      }
+      .sidebar-elements {
+         height: calc(100dvh - var(--sidebar-control-height) * 2);
+         overflow-y: auto;
+      }
+      .draggable-field-items {
+         display: flex;
+         flex-wrap: wrap;
+         justify-content: space-between;
+         gap: 10px;
+         .draggable-field-item {
+            width: calc(50% - 5px);
+            background-color: hsl(216, 98%, 99%);
+            .draggable-text {
+               font-size: 12px;
+            }
+         }
+      }
+   }
+   .rightside {
+      flex: 1;
+      background: #f0f0f0;
+      height: 100dvh;
+      .form-title-height {
+         height: var(--sidebar-control-height);
+      }
+      .content-preview {
+         height: calc(100dvh - var(--sidebar-control-height));
+         overflow-y: auto;
+      }
+   }
+}
+
 .sidebar {
    background-color: #f8f9fa;
    min-height: 100vh;
@@ -86,10 +131,10 @@ body {
 }
 
 .drop-zone {
-   min-height: 400px;
-   border: 3px dashed #dee2e6;
+   min-height: 100%;
+   border: 1px dashed #dee2e6;
    padding: 20px;
-   background-color: #fafbfc;
+   background-color: #ffffff;
 }
 
 .drop-zone.empty {
