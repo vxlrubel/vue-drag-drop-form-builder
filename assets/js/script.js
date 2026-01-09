@@ -220,103 +220,16 @@ const EditForm = createApp({
             this.$forceUpdate();
          }
       },
-      loadSampleData() {
-         this.formFields = [
-            {
-               uid: "field-1767206578220-vl6ah",
-               type: "heading",
-               name: "field_8796964812690",
-               label: "Heading",
-               required: false,
-               placeholder: "Enter heading",
-            },
-            {
-               uid: "field-1767206582626-e0f0l",
-               type: "number",
-               name: "field_5238054626345",
-               label: "Number",
-               required: false,
-               placeholder: "Enter number",
-            },
-            {
-               uid: "field-1767206544836-80xa9",
-               type: "container",
-               name: "field_4504736307116",
-               label: "Container",
-               required: false,
-               columns: [
-                  {
-                     fields: [
-                        {
-                           uid: "field-1767206553639-pwhof",
-                           type: "heading",
-                           name: "field_2036402220845",
-                           label: "Heading",
-                           required: false,
-                           placeholder: "Enter heading",
-                        },
-                        {
-                           uid: "field-1767206557729-2vilu",
-                           type: "paragraph",
-                           name: "field_3544515689756",
-                           label: "Paragraph",
-                           required: false,
-                           placeholder: "Enter paragraph",
-                        },
-                        {
-                           uid: "field-1767206561381-xfrqx",
-                           type: "text",
-                           name: "field_3333118597207",
-                           label: "Text",
-                           required: true,
-                           placeholder: "Enter text",
-                        },
-                     ],
-                  },
-                  {
-                     fields: [
-                        {
-                           uid: "field-1767206567652-1cosw",
-                           type: "text",
-                           name: "field_1617653101814",
-                           label: "Text",
-                           required: false,
-                           placeholder: "Enter text",
-                        },
-                        {
-                           uid: "field-1767206666281-9trg6",
-                           type: "checkbox",
-                           name: "field_8373769108225",
-                           label: "Checkbox",
-                           required: false,
-                           placeholder: "Select checkbox",
-                           options: ["Option 1", "Option 2"],
-                        },
-                     ],
-                  },
-                  {
-                     fields: [
-                        {
-                           uid: "field-1767206571066-qerrp",
-                           type: "paragraph",
-                           name: "field_2027009058628",
-                           label: "Paragraph",
-                           required: false,
-                           placeholder: "Enter paragraph",
-                        },
-                     ],
-                  },
-               ],
-            },
-            {
-               uid: "field-1767206586223-8bbaj",
-               type: "text",
-               name: "field_9314397923278",
-               label: "Text",
-               required: false,
-               placeholder: "Enter text",
-            },
-         ];
+      async loadSampleData() {
+         try {
+            const response = await fetch("sample-form.json");
+
+            if (!response.ok) throw new Error("Failed to load form data");
+
+            this.formFields = await response.json();
+         } catch (error) {
+            console.error("Form load error:", error);
+         }
       },
    },
 });
