@@ -219,7 +219,7 @@
                                  <button
                                     class="btn btn-sm btn-outline-success"
                                     @click.stop="addColumn(field)">
-                                    <i class="fas fa-plus"></i> Column
+                                    <i class="fas fa-plus"></i>
                                  </button>
                                  <button
                                     class="btn btn-sm btn-outline-danger"
@@ -248,7 +248,7 @@
                                        >
                                        <button
                                           v-if="field.columns.length > 1"
-                                          class="btn btn-sm btn-outline-danger ms-auto"
+                                          class="btn btn-sm btn-outline-danger ms-auto rounded-circle column-remove-btn"
                                           @click.stop="removeColumn(field, colIdx)">
                                           <i class="fas fa-times"></i>
                                        </button>
