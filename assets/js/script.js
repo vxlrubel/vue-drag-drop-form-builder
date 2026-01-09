@@ -7,6 +7,7 @@ const EditForm = createApp({
    },
    data() {
       return {
+         elementsListVisible: true,
          fieldTypes,
          formFields: [],
          editingField: null,
@@ -19,6 +20,36 @@ const EditForm = createApp({
       // VueDraggable handles everything - no manual initialization needed!
    },
    methods: {
+      initEditField() {
+         let field = null;
+         if (this.formFields.length === 0) {
+            this.editingField = null;
+            this.editingFieldRef = null;
+            alert("No fields to edit. Please add a field first.");
+            return;
+         }
+         this.elementsListVisible = false;
+         if (!this.editingField) {
+            field = this.formFields[0];
+         } else {
+            if (this.editingFieldRef) {
+               field = this.editingFieldRef;
+            } else {
+               field = this.formFields.find(
+                  (f) => f.uid === this.editingField.uid
+               );
+            }
+         }
+
+         this.editingField = JSON.parse(JSON.stringify(field));
+         this.editingFieldRef = field;
+
+         if (this.editingField.options) {
+            this.optionsText = this.editingField.options.join("\n");
+         } else {
+            this.optionsText = "";
+         }
+      },
       onFieldAdd(evt) {
          // When field is added from palette, create a new field
          if (evt.added && evt.added.element.type) {
@@ -102,6 +133,7 @@ const EditForm = createApp({
 
       editField(field) {
          // Create a deep copy to avoid reference issues
+         this.elementsListVisible = false;
          this.editingField = JSON.parse(JSON.stringify(field));
          this.editingFieldRef = field; // Keep reference for updating
 
@@ -110,13 +142,6 @@ const EditForm = createApp({
          } else {
             this.optionsText = "";
          }
-
-         this.$nextTick(() => {
-            const modal = new bootstrap.Modal(
-               document.getElementById("editModal")
-            );
-            modal.show();
-         });
       },
 
       saveField() {
@@ -135,8 +160,8 @@ const EditForm = createApp({
             Object.assign(this.editingFieldRef, this.editingField);
          }
 
-         this.editingField = null;
-         this.editingFieldRef = null;
+         // this.editingField = null;
+         // this.editingFieldRef = null;
       },
 
       exportJSON() {

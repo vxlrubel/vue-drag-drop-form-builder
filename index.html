@@ -23,18 +23,18 @@
                   class="d-flex align-items-center sidebar-controls-height px-3 border-bottom">
                   <button
                      type="button"
-                     @click="editingField = null"
+                     @click="elementsListVisible = true"
                      :class="{
-                        'active' : !editingField
+                        'active' : elementsListVisible
                      }"
                      class="btn btn-sm rounded-0 btn-outline-primary w-50">
                      Fields
                   </button>
                   <button
                      type="button"
-                     @click="editingField = {}"
+                     @click="initEditField"
                      :class="{
-                        'active' : editingField
+                        'active' : !elementsListVisible
                      }"
                      class="btn btn-sm rounded-0 btn-outline-primary w-50">
                      Field Settings
@@ -43,25 +43,95 @@
 
                <!-- draggable elements -->
                <div class="sidebar-elements p-3">
-                  <draggable
-                     v-model="fieldTypes"
-                     :group="{ name: 'fields', pull: 'clone', put: false }"
-                     :sort="false"
-                     :clone="createField"
-                     item-key="type"
-                     class="draggable-field-items"
-                     id="field-palette">
-                     <template #item="{element}">
-                        <div
-                           class="draggable-field-item border border-primary text-center p-2"
-                           :data-type="element.type">
-                           <div class="text-primary">
-                              <i :class="element.icon"></i>
+                  <template v-if="elementsListVisible">
+                     <draggable
+                        v-model="fieldTypes"
+                        :group="{ name: 'fields', pull: 'clone', put: false }"
+                        :sort="false"
+                        :clone="createField"
+                        item-key="type"
+                        class="draggable-field-items"
+                        id="field-palette">
+                        <template #item="{element}">
+                           <div
+                              class="draggable-field-item border border-primary text-center p-2"
+                              :data-type="element.type">
+                              <div class="text-primary">
+                                 <i :class="element.icon"></i>
+                              </div>
+                              <div class="draggable-text">
+                                 {{ element.label }}
+                              </div>
                            </div>
-                           <div class="draggable-text">{{ element.label }}</div>
+                        </template>
+                     </draggable>
+                  </template>
+
+                  <template v-if="!elementsListVisible">
+                     <div class="small">
+                        <div class="mb-3">
+                           <label class="form-label">Label</label>
+                           <input
+                              type="text"
+                              class="form-control form-control-sm rounded-0 bg-light"
+                              v-model="editingField.label" />
                         </div>
-                     </template>
-                  </draggable>
+                        <div class="mb-3">
+                           <label class="form-label">Placeholder</label>
+                           <input
+                              type="text"
+                              class="form-control form-control-sm rounded-0 bg-light"
+                              v-model="editingField.placeholder" />
+                        </div>
+                        <div
+                           class="mb-3"
+                           v-if="editingField.type === 'select' || editingField.type === 'radio' || editingField.type === 'checkbox'">
+                           <label class="form-label"
+                              >Options (one per line)</label
+                           >
+                           <textarea
+                              class="form-control form-control-sm rounded-0 bg-light"
+                              rows="4"
+                              v-model="optionsText"></textarea>
+                        </div>
+                        <div class="mb-3" v-if="editingField.type === 'photo'">
+                           <label class="form-label">Accepted File Types</label>
+                           <input
+                              type="text"
+                              class="form-control"
+                              v-model="editingField.acceptedTypes"
+                              placeholder="e.g., image/jpeg, image/png, image/gif" />
+                           <small class="text-muted"
+                              >Leave empty for default (all image types)</small
+                           >
+                        </div>
+                        <div class="mb-3" v-if="editingField.type === 'photo'">
+                           <label class="form-label">Max File Size (MB)</label>
+                           <input
+                              type="number"
+                              class="form-control"
+                              v-model="editingField.maxSize"
+                              placeholder="5" />
+                        </div>
+                        <div class="mb-3 form-check">
+                           <input
+                              type="checkbox"
+                              class="form-check-input"
+                              id="requiredCheck"
+                              v-model="editingField.required" />
+                           <label class="form-check-label" for="requiredCheck"
+                              >Required Field</label
+                           >
+                        </div>
+                        <hr />
+                        <button
+                           type="button"
+                           class="btn btn-success rounded-0 w-100"
+                           @click="saveField">
+                           Save Changes
+                        </button>
+                     </div>
+                  </template>
                </div>
 
                <div
@@ -497,90 +567,6 @@
                         </div>
                      </template>
                   </draggable>
-               </div>
-            </div>
-         </div>
-
-         <!-- Edit Modal -->
-         <div class="modal fade" id="editModal" tabindex="-1">
-            <div class="modal-dialog">
-               <div class="modal-content">
-                  <div class="modal-header">
-                     <h5 class="modal-title">Edit Field</h5>
-                     <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"></button>
-                  </div>
-                  <div class="modal-body" v-if="editingField">
-                     <div class="mb-3">
-                        <label class="form-label">Label</label>
-                        <input
-                           type="text"
-                           class="form-control"
-                           v-model="editingField.label" />
-                     </div>
-                     <div class="mb-3">
-                        <label class="form-label">Placeholder</label>
-                        <input
-                           type="text"
-                           class="form-control"
-                           v-model="editingField.placeholder" />
-                     </div>
-                     <div
-                        class="mb-3"
-                        v-if="editingField.type === 'select' || editingField.type === 'radio' || editingField.type === 'checkbox'">
-                        <label class="form-label">Options (one per line)</label>
-                        <textarea
-                           class="form-control"
-                           rows="4"
-                           v-model="optionsText"></textarea>
-                     </div>
-                     <div class="mb-3" v-if="editingField.type === 'photo'">
-                        <label class="form-label">Accepted File Types</label>
-                        <input
-                           type="text"
-                           class="form-control"
-                           v-model="editingField.acceptedTypes"
-                           placeholder="e.g., image/jpeg, image/png, image/gif" />
-                        <small class="text-muted"
-                           >Leave empty for default (all image types)</small
-                        >
-                     </div>
-                     <div class="mb-3" v-if="editingField.type === 'photo'">
-                        <label class="form-label">Max File Size (MB)</label>
-                        <input
-                           type="number"
-                           class="form-control"
-                           v-model="editingField.maxSize"
-                           placeholder="5" />
-                     </div>
-                     <div class="mb-3 form-check">
-                        <input
-                           type="checkbox"
-                           class="form-check-input"
-                           id="requiredCheck"
-                           v-model="editingField.required" />
-                        <label class="form-check-label" for="requiredCheck"
-                           >Required Field</label
-                        >
-                     </div>
-                  </div>
-                  <div class="modal-footer">
-                     <button
-                        type="button"
-                        class="btn btn-secondary"
-                        data-bs-dismiss="modal">
-                        Close
-                     </button>
-                     <button
-                        type="button"
-                        class="btn btn-primary"
-                        @click="saveField"
-                        data-bs-dismiss="modal">
-                        Save Changes
-                     </button>
-                  </div>
                </div>
             </div>
          </div>
