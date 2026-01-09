@@ -7,11 +7,20 @@ const EditForm = createApp({
    data() {
       return {
          fieldTypes: [
-            { type: "text", label: "Text Input", icon: "fas fa-font" },
+            {
+               type: "text",
+               label: "Text Input",
+               icon: "fas fa-font",
+            },
             {
                type: "email",
                label: "Email Input",
                icon: "fas fa-envelope",
+            },
+            {
+               type: "photo",
+               label: "Photo",
+               icon: "fas fa-camera",
             },
             {
                type: "number",
@@ -207,7 +216,65 @@ const EditForm = createApp({
             this.formFields = [];
          }
       },
+      triggerPhotoUpload(fieldUid) {
+         const fileInput = document.getElementById("photo-" + fieldUid);
+         if (fileInput) {
+            fileInput.click();
+         }
+      },
+      handlePhotoUpload(event, field) {
+         const file = event.target.files[0];
+         if (!file) return;
 
+         // Validate file type
+         if (field.acceptedTypes) {
+            const acceptedTypes = field.acceptedTypes
+               .split(",")
+               .map((t) => t.trim());
+            if (
+               !acceptedTypes.some((type) =>
+                  file.type.match(type.replace("*", ".*"))
+               )
+            ) {
+               alert("Please select a valid image file type.");
+               return;
+            }
+         }
+
+         // Validate file size
+         const maxSize = (field.maxSize || 5) * 1024 * 1024; // Convert MB to bytes
+         if (file.size > maxSize) {
+            alert(`File size must be less than ${field.maxSize || 5}MB`);
+            return;
+         }
+
+         // Read and store the image
+         const reader = new FileReader();
+         reader.onload = (e) => {
+            field.uploadedPhoto = e.target.result;
+            field.photoName = file.name;
+            field.photoSize = (file.size / 1024).toFixed(2) + " KB";
+
+            // Force Vue to update
+            this.$forceUpdate();
+         };
+         reader.readAsDataURL(file);
+      },
+      removePhoto(field) {
+         if (confirm("Remove this photo?")) {
+            field.uploadedPhoto = null;
+            field.photoName = null;
+            field.photoSize = null;
+
+            // Reset file input
+            const fileInput = document.getElementById("photo-" + field.uid);
+            if (fileInput) {
+               fileInput.value = "";
+            }
+
+            this.$forceUpdate();
+         }
+      },
       loadSampleData() {
          this.formFields = [
             {

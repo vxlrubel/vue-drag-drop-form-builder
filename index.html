@@ -169,6 +169,48 @@
                                     >
                                  </div>
                               </div>
+                              <!-- Photo Upload Field -->
+                              <div v-if="field.type === 'photo'">
+                                 <input
+                                    type="file"
+                                    :id="'photo-' + field.uid"
+                                    :accept="field.acceptedTypes || 'image/*'"
+                                    @change="handlePhotoUpload($event, field)"
+                                    style="display: none" />
+
+                                 <div
+                                    class="photo-upload-container"
+                                    @click="triggerPhotoUpload(field.uid)"
+                                    v-if="!field.uploadedPhoto">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <div class="photo-upload-text">
+                                       Click to upload photo
+                                    </div>
+                                    <div class="photo-upload-hint">
+                                       <!-- {{ field.placeholder ?? 'Supports JPG, PNG, GIF (Max 5MB)' }} -->
+                                       Supports JPG, PNG, GIF (Max 5MB
+                                    </div>
+                                 </div>
+
+                                 <div
+                                    v-if="field.uploadedPhoto"
+                                    class="position-relative">
+                                    <img
+                                       :src="field.uploadedPhoto"
+                                       class="photo-preview"
+                                       alt="Uploaded photo" />
+                                    <button
+                                       class="btn btn-sm btn-danger position-absolute top-0 end-0 m-2"
+                                       @click.stop="removePhoto(field)">
+                                       <i class="fas fa-times"></i>
+                                    </button>
+                                    <div class="text-center mt-2">
+                                       <small class="text-muted"
+                                          >{{ field.photoName }}</small
+                                       >
+                                    </div>
+                                 </div>
+                              </div>
                            </template>
 
                            <!-- Container Field -->
@@ -323,6 +365,65 @@
                                                    >
                                                 </div>
                                              </div>
+                                             <div
+                                                v-if="nestedField.type === 'photo'">
+                                                <input
+                                                   type="file"
+                                                   :id="'photo-' + nestedField.uid"
+                                                   :accept="nestedField.acceptedTypes || 'image/*'"
+                                                   @change="handlePhotoUpload($event, nestedField)"
+                                                   style="display: none" />
+
+                                                <div
+                                                   class="photo-upload-container"
+                                                   style="padding: 15px"
+                                                   @click="triggerPhotoUpload(nestedField.uid)"
+                                                   v-if="!nestedField.uploadedPhoto">
+                                                   <i
+                                                      class="fas fa-cloud-upload-alt"
+                                                      style="
+                                                         font-size: 32px;
+                                                      "></i>
+                                                   <div
+                                                      class="photo-upload-text">
+                                                      Upload photo
+                                                   </div>
+                                                   <div
+                                                      class="photo-upload-hint">
+                                                      {{ nestedField.placeholder
+                                                      || 'Max 5MB' }}
+                                                   </div>
+                                                </div>
+
+                                                <div
+                                                   v-if="nestedField.uploadedPhoto"
+                                                   class="position-relative">
+                                                   <img
+                                                      :src="nestedField.uploadedPhoto"
+                                                      style="
+                                                         max-width: 100%;
+                                                         max-height: 150px;
+                                                         border-radius: 6px;
+                                                      "
+                                                      alt="Uploaded" />
+                                                   <button
+                                                      class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1"
+                                                      @click.stop="removePhoto(nestedField)">
+                                                      <i
+                                                         class="fas fa-times"></i>
+                                                   </button>
+                                                   <div
+                                                      class="text-center mt-2">
+                                                      <small
+                                                         class="text-muted"
+                                                         style="font-size: 11px"
+                                                         >{{
+                                                         nestedField.photoName
+                                                         }}</small
+                                                      >
+                                                   </div>
+                                                </div>
+                                             </div>
                                           </div>
                                        </template>
 
@@ -391,6 +492,25 @@
                            class="form-control"
                            rows="4"
                            v-model="optionsText"></textarea>
+                     </div>
+                     <div class="mb-3" v-if="editingField.type === 'photo'">
+                        <label class="form-label">Accepted File Types</label>
+                        <input
+                           type="text"
+                           class="form-control"
+                           v-model="editingField.acceptedTypes"
+                           placeholder="e.g., image/jpeg, image/png, image/gif" />
+                        <small class="text-muted"
+                           >Leave empty for default (all image types)</small
+                        >
+                     </div>
+                     <div class="mb-3" v-if="editingField.type === 'photo'">
+                        <label class="form-label">Max File Size (MB)</label>
+                        <input
+                           type="number"
+                           class="form-control"
+                           v-model="editingField.maxSize"
+                           placeholder="5" />
                      </div>
                      <div class="mb-3 form-check">
                         <input
