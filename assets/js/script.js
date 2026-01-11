@@ -13,6 +13,10 @@ const EditForm = createApp({
          editingField: null,
          editingFieldRef: null,
          optionsText: "",
+         sidebarWidth: 270,
+         isResizing: false,
+         minWidth: 270,
+         maxWidth: 500,
       };
    },
    mounted() {
@@ -20,6 +24,29 @@ const EditForm = createApp({
       // VueDraggable handles everything - no manual initialization needed!
    },
    methods: {
+      startResize() {
+         this.isResizing = true;
+         document.body.style.cursor = "col-resize";
+
+         document.addEventListener("mousemove", this.resize);
+         document.addEventListener("mouseup", this.stopResize);
+      },
+      resize(e) {
+         if (!this.isResizing) return;
+
+         const newWidth = e.clientX;
+
+         if (newWidth >= this.minWidth && newWidth <= this.maxWidth) {
+            this.sidebarWidth = newWidth;
+         }
+      },
+      stopResize() {
+         this.isResizing = false;
+         document.body.style.cursor = "default";
+
+         document.removeEventListener("mousemove", this.resize);
+         document.removeEventListener("mouseup", this.stopResize);
+      },
       initEditField() {
          let field = null;
          if (this.formFields.length === 0) {
