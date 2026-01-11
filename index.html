@@ -16,9 +16,9 @@
    </head>
    <body>
       <div id="app">
-         <div class="wraper">
+         <div class="wraper user-select-none">
             <!-- leftsidebar -->
-            <div class="leftside border-end">
+            <div class="leftside" :style="{ width: sidebarWidth + 'px' }">
                <div
                   class="d-flex align-items-center sidebar-controls-height px-3 border-bottom">
                   <button
@@ -149,6 +149,22 @@
                      Load Form
                   </button>
                </div>
+            </div>
+            <div
+               class="resizer"
+               @mousedown="startResize"
+               :class="{'active': isResizing}">
+               <span>
+                  <svg
+                     xmlns="http://www.w3.org/2000/svg"
+                     height="13px"
+                     viewBox="0 -960 960 960"
+                     width="13px"
+                     fill="currentColor">
+                     <path
+                        d="m682-247-90-88 81-81H520v-127h153l-80-80 89-88 232 232-232 232Zm-403 0L46-479l232-232 89 88-80 80h153v127H286l81 81-88 88Z" />
+                  </svg>
+               </span>
             </div>
 
             <!-- rightsidebar -->
