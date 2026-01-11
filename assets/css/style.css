@@ -1,5 +1,6 @@
 :root {
    --color: hsl(216, 98%, 52%);
+   --rightsidebar-bg: #f0f0f0;
 }
 
 body {
@@ -7,13 +8,14 @@ body {
 }
 
 .wraper {
-   --leftside-width: 250px;
+   --leftside-width: 270px;
    --sidebar-control-height: 50px;
    display: flex;
    flex-wrap: wrap;
 
    .leftside {
       width: var(--leftside-width);
+      min-width: var(--leftside-width) !important;
       background: #fff;
       height: 100dvh;
       .sidebar-controls-height {
@@ -37,9 +39,43 @@ body {
          }
       }
    }
+   .resizer {
+      --size: 22px;
+      width: 2px;
+      position: relative;
+      height: 100dvh;
+      cursor: col-resize;
+      background: #dee2e6;
+      span {
+         color: white;
+         position: absolute;
+         display: flex;
+         border: 2px solid var(--color);
+         align-items: center;
+         justify-content: center;
+         height: var(--size);
+         width: var(--size);
+         top: calc(50% - (var(--size) / 2));
+         left: calc(50% - (var(--size) / 2));
+         z-index: 2;
+         border-radius: 50%;
+         background-color: var(--color);
+      }
+   }
+
+   .resizer:hover {
+      background: hsl(0, 0%, 80%);
+   }
+   .resizer.active {
+      background: var(--color);
+   }
+   .resizer.active span {
+      color: var(--color);
+      background-color: white;
+   }
    .rightside {
       flex: 1;
-      background: #f0f0f0;
+      background: var(--rightsidebar-bg);
       height: 100dvh;
       .form-title-height {
          height: var(--sidebar-control-height);
