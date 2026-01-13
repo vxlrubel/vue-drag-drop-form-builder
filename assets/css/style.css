@@ -202,9 +202,6 @@ body {
 }
 
 .container-column.empty {
-   display: flex;
-   align-items: center;
-   justify-content: center;
    color: #adb5bd;
    font-style: italic;
 }
@@ -300,4 +297,110 @@ body {
    height: 28px;
    width: 28px;
    font-size: 12px;
+}
+
+.table-field {
+   background-color: #f8f9fa;
+   border: 2px solid #198754;
+   padding: 20px;
+   margin-bottom: 15px;
+   border-radius: 8px;
+   position: relative;
+}
+
+.table-controls {
+   display: flex;
+   gap: 10px;
+   margin-bottom: 15px;
+}
+
+.dynamic-table {
+   width: 100%;
+   border-collapse: collapse;
+   background-color: #ffffff;
+}
+
+.dynamic-table th,
+.dynamic-table td {
+   border: 1px solid #dee2e6;
+   padding: 5px;
+   text-align: left;
+   vertical-align: top;
+}
+
+.dynamic-table th {
+   background-color: #e9ecef;
+   font-weight: 600;
+}
+
+.dynamic-table input {
+   width: 100%;
+   border: none;
+   background: transparent;
+   padding: 5px;
+}
+
+.dynamic-table input:focus {
+   outline: 2px solid #0d6efd;
+   border-radius: 4px;
+}
+
+.table-header-input {
+   font-weight: 600;
+}
+.table-cell-drop-zone {
+   min-height: 80px;
+   padding: 8px;
+}
+
+.table-cell-drop-zone.empty {
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   color: #adb5bd;
+   font-size: 11px;
+   font-style: italic;
+}
+
+.table-cell-field {
+   padding: 8px;
+   margin-bottom: 8px;
+   background: #ffffff;
+   border: 1px solid #dee2e6;
+   position: relative;
+}
+
+.table-cell-field:hover {
+   border-color: #0d6efd;
+   box-shadow: 0 1px 4px rgba(13, 110, 253, 0.15);
+}
+
+.table-cell-field .field-controls {
+   top: 5px;
+   right: 5px;
+}
+
+.table-cell-field .field-controls button {
+   padding: 2px 5px;
+   font-size: 10px;
+}
+
+.table-cell-field .field-label {
+   font-size: 11px;
+   margin-bottom: 4px;
+}
+
+.table-cell-field input,
+.table-cell-field textarea,
+.table-cell-field select {
+   font-size: 12px;
+   padding: 4px 8px;
+}
+
+.table-cell-field .form-check {
+   margin-bottom: 2px;
+}
+
+.table-cell-field .form-check-label {
+   font-size: 11px;
 }
