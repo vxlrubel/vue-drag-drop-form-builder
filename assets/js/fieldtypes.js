@@ -1,5 +1,15 @@
 export const fieldTypes = [
    {
+      type: "container",
+      label: "Container",
+      icon: "fas fa-layer-group",
+   },
+   {
+      type: "table",
+      label: "Table",
+      icon: "fas fa-table",
+   },
+   {
       type: "text",
       label: "Text Input",
       icon: "fas fa-font",
@@ -48,10 +58,5 @@ export const fieldTypes = [
       type: "paragraph",
       label: "Paragraph",
       icon: "fas fa-paragraph",
-   },
-   {
-      type: "container",
-      label: "Container",
-      icon: "fas fa-layer-group",
    },
 ];
