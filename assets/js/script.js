@@ -125,6 +125,15 @@ const EditForm = createApp({
          if (type === "container") {
             baseField.columns = [{ fields: [] }, { fields: [] }];
          }
+         if (type === "table") {
+            baseField.table = {
+               headers: ["Column 1", "Column 2", "Column 3"],
+               rows: [
+                  [{ fields: [] }, { fields: [] }, { fields: [] }],
+                  [{ fields: [] }, { fields: [] }, { fields: [] }],
+               ],
+            };
+         }
 
          return baseField;
       },
@@ -272,6 +281,55 @@ const EditForm = createApp({
             this.$forceUpdate();
          }
       },
+
+      addTableRow(field) {
+         const newRow = [];
+         for (let i = 0; i < field.table.headers.length; i++) {
+            newRow.push({ fields: [] });
+         }
+         field.table.rows.push(newRow);
+      },
+
+      removeTableRow(field, rowIdx) {
+         if (field.table.rows.length <= 1) {
+            alert("Table must have at least one row");
+            return;
+         }
+         if (confirm("Are you sure you want to remove this row?")) {
+            field.table.rows.splice(rowIdx, 1);
+         }
+      },
+
+      addTableColumn(field) {
+         field.table.headers.push(`Column ${field.table.headers.length + 1}`);
+         field.table.rows.forEach((row) => {
+            row.push({ fields: [] });
+         });
+      },
+
+      removeTableColumn(field, colIdx) {
+         if (field.table.headers.length <= 1) {
+            alert("Table must have at least one column");
+            return;
+         }
+         if (confirm("Are you sure you want to remove this column?")) {
+            field.table.headers.splice(colIdx, 1);
+            field.table.rows.forEach((row) => {
+               row.splice(colIdx, 1);
+            });
+         }
+      },
+
+      updateTableHeader(field, colIdx, value) {
+         field.table.headers[colIdx] = value;
+      },
+
+      removeTableCellField(field, rowIdx, colIdx, fieldIdx) {
+         if (confirm("Are you sure you want to remove this field?")) {
+            field.table.rows[rowIdx][colIdx].fields.splice(fieldIdx, 1);
+         }
+      },
+
       async loadSampleData() {
          try {
             const response = await fetch("sample-form.json");
