@@ -15,8 +15,14 @@
       <link rel="stylesheet" href="./assets/css/style.css" />
    </head>
    <body>
-      <div id="app">
-         <div class="wraper user-select-none">
+      <div id="app" v-cloak>
+         <div
+            v-if="loading"
+            style="z-index: 9999; background-color: rgba(255, 255, 255, 1)"
+            class="position-fixed top-0 bottom-0 start-0 end-0 d-flex align-items-center justify-content-center">
+            <div class="bg-danger"><div class="loader"></div></div>
+         </div>
+         <div v-else class="wraper user-select-none">
             <!-- leftsidebar -->
             <div class="leftside" :style="{ width: sidebarWidth + 'px' }">
                <div
@@ -177,11 +183,21 @@
                      <div class="d-flex align-items-center gap-2">
                         <button
                            type="button"
+                           @click="removeSavedFields"
+                           class="btn btn-sm rounded-0 btn-danger">
+                           Remove Saved Fields
+                        </button>
+                        <button
+                           type="button"
                            @click="clearAll"
                            class="btn btn-sm rounded-0 btn-danger">
                            Clear All Fields
                         </button>
-                        <button class="btn btn-sm btn-success rounded-0">
+                        <button
+                           class="btn btn-sm btn-success rounded-0"
+                           type="button"
+                           :disabled="!formFields.length"
+                           @click="saveForm">
                            Save Form
                         </button>
                         <button

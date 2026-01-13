@@ -7,6 +7,9 @@ const EditForm = createApp({
    },
    data() {
       return {
+         dataKey:
+            "KSF+>kg=hg*%&K46}Rmtj[+2&<btWm&XX+|ZLJ-iY|Fh9K/`8lFTaNM@>$(C-xm(?",
+         loading: false,
          elementsListVisible: true,
          fieldTypes,
          formFields: [],
@@ -21,7 +24,6 @@ const EditForm = createApp({
    },
    mounted() {
       this.loadSampleData();
-      // VueDraggable handles everything - no manual initialization needed!
    },
    methods: {
       startResize() {
@@ -216,6 +218,11 @@ const EditForm = createApp({
          console.log("Exported JSON:", json);
          alert("Form JSON exported! Check your downloads folder.");
       },
+      saveForm() {
+         if (!this.formFields.length) return;
+         const data = JSON.stringify(this.formFields);
+         localStorage.setItem(this.dataKey, data);
+      },
 
       clearAll() {
          if (confirm("Are you sure you want to clear all fields?")) {
@@ -331,6 +338,11 @@ const EditForm = createApp({
       },
 
       async loadSampleData() {
+         const saved = localStorage.getItem(this.dataKey);
+         if (saved) {
+            this.formFields = JSON.parse(saved);
+            return;
+         }
          try {
             const response = await fetch("sample-form.json");
 
@@ -340,6 +352,17 @@ const EditForm = createApp({
          } catch (error) {
             console.error("Form load error:", error);
          }
+      },
+      removeSavedFields() {
+         const saved = localStorage.getItem(this.dataKey);
+         if (!saved) {
+            alert("Data is not stored anymore.");
+            return;
+         }
+
+         if (!confirm("Are you sure")) return;
+
+         localStorage.setItem(this.dataKey, "");
       },
    },
 });
