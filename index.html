@@ -210,7 +210,8 @@
                            class="dropped-field"
                            :class="{ 'container-field': field.type === 'container' }">
                            <!-- Regular Field -->
-                           <template v-if="field.type !== 'container'">
+                           <template
+                              v-if="field.type !== 'container' && field.type !== 'table'">
                               <div class="field-controls">
                                  <button
                                     class="btn btn-sm btn-outline-primary"
@@ -348,7 +349,7 @@
                            </template>
 
                            <!-- Container Field -->
-                           <template v-else>
+                           <template v-else-if="field.type == 'container'">
                               <div class="field-controls">
                                  <button
                                     class="btn btn-sm btn-outline-success"
@@ -572,6 +573,288 @@
                                     </draggable>
                                  </div>
                               </div>
+                           </template>
+                           <template v-else-if="field.type === 'table'">
+                              <div class="field-controls">
+                                 <button
+                                    class="btn btn-sm btn-outline-danger"
+                                    @click.stop="removeField(index)">
+                                    <i class="fas fa-trash"></i>
+                                 </button>
+                              </div>
+
+                              <div class="field-label">
+                                 <i class="fas fa-table"></i> {{ field.label }}
+                                 <span class="field-type-badge">table</span>
+                              </div>
+
+                              <table class="dynamic-table">
+                                 <thead>
+                                    <tr>
+                                       <th
+                                          v-for="(header, colIdx) in field.table.headers"
+                                          :key="'header-' + colIdx">
+                                          <div
+                                             class="d-flex align-items-center">
+                                             <div style="flex: 1">
+                                                <input
+                                                   type="text"
+                                                   class="rounded-0 form-control form-control-sm"
+                                                   :value="header"
+                                                   @input="updateTableHeader(field, colIdx, $event.target.value)"
+                                                   placeholder="Header" />
+                                             </div>
+                                             <button
+                                                class="btn btn-sm btn-outline-danger ms-2 rounded-circle column-remove-btn"
+                                                @click.stop="removeTableColumn(field, colIdx)">
+                                                <i class="fas fa-times"></i>
+                                             </button>
+                                          </div>
+                                       </th>
+                                       <th
+                                          class="bg-white text-center"
+                                          style="
+                                             width: 60px;
+                                             max-width: 60px;
+                                             min-width: 60px;
+                                          ">
+                                          <button
+                                             class="btn btn-sm btn-outline-success rounded-circle column-remove-btn"
+                                             @click.stop="addTableColumn(field)">
+                                             <i class="fas fa-plus"></i>
+                                          </button>
+                                       </th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr
+                                       v-for="(row, rowIdx) in field.table.rows"
+                                       :key="'row-' + rowIdx">
+                                       <td
+                                          v-for="(cell, colIdx) in row"
+                                          :key="'cell-' + rowIdx + '-' + colIdx">
+                                          <draggable
+                                             v-model="cell.fields"
+                                             group="fields"
+                                             item-key="uid"
+                                             :animation="150"
+                                             ghost-class="sortable-ghost"
+                                             handle=".table-cell-field"
+                                             :empty-insert-threshold="30"
+                                             :class="['table-cell-drop-zone', { empty: cell.fields.length === 0 }]">
+                                             <template
+                                                #item="{element: cellField, index: fieldIdx}">
+                                                <div class="table-cell-field">
+                                                   <div class="field-controls">
+                                                      <button
+                                                         class="btn btn-sm btn-outline-primary"
+                                                         @click.stop="editField(cellField)">
+                                                         <i
+                                                            class="fas fa-edit"></i>
+                                                      </button>
+                                                      <button
+                                                         class="btn btn-sm btn-outline-danger"
+                                                         @click.stop="removeTableCellField(field, rowIdx, colIdx, fieldIdx)">
+                                                         <i
+                                                            class="fas fa-trash"></i>
+                                                      </button>
+                                                   </div>
+
+                                                   <div class="field-label">
+                                                      {{ cellField.label }}
+                                                      <span
+                                                         v-if="cellField.required"
+                                                         class="field-required"
+                                                         >*</span
+                                                      >
+                                                      <span
+                                                         class="field-type-badge"
+                                                         >{{ cellField.type
+                                                         }}</span
+                                                      >
+                                                   </div>
+
+                                                   <input
+                                                      v-if="cellField.type === 'text' || cellField.type === 'email'"
+                                                      type="text"
+                                                      class="form-control form-control-sm"
+                                                      :placeholder="cellField.placeholder"
+                                                      disabled />
+
+                                                   <input
+                                                      v-if="cellField.type === 'number'"
+                                                      type="number"
+                                                      class="form-control form-control-sm"
+                                                      :placeholder="cellField.placeholder"
+                                                      disabled />
+
+                                                   <textarea
+                                                      v-if="cellField.type === 'textarea' || cellField.type === 'paragraph'"
+                                                      class="form-control form-control-sm"
+                                                      rows="2"
+                                                      :placeholder="cellField.placeholder"
+                                                      disabled></textarea>
+
+                                                   <h6
+                                                      v-if="cellField.type === 'heading'"
+                                                      class="mb-0">
+                                                      {{ cellField.placeholder
+                                                      }}
+                                                   </h6>
+
+                                                   <select
+                                                      v-if="cellField.type === 'select'"
+                                                      class="form-control form-control-sm"
+                                                      disabled>
+                                                      <option>
+                                                         {{
+                                                         cellField.placeholder
+                                                         }}
+                                                      </option>
+                                                      <option
+                                                         v-for="(option, idx) in cellField.options"
+                                                         :key="idx">
+                                                         {{ option }}
+                                                      </option>
+                                                   </select>
+
+                                                   <div
+                                                      v-if="cellField.type === 'radio'">
+                                                      <div
+                                                         v-for="(option, idx) in cellField.options"
+                                                         :key="idx"
+                                                         class="form-check">
+                                                         <input
+                                                            class="form-check-input"
+                                                            type="radio"
+                                                            :name="cellField.name"
+                                                            disabled />
+                                                         <label
+                                                            class="form-check-label"
+                                                            >{{ option }}</label
+                                                         >
+                                                      </div>
+                                                   </div>
+
+                                                   <div
+                                                      v-if="cellField.type === 'checkbox'">
+                                                      <div
+                                                         v-for="(option, idx) in cellField.options"
+                                                         :key="idx"
+                                                         class="form-check">
+                                                         <input
+                                                            class="form-check-input"
+                                                            type="checkbox"
+                                                            disabled />
+                                                         <label
+                                                            class="form-check-label"
+                                                            >{{ option }}</label
+                                                         >
+                                                      </div>
+                                                   </div>
+                                                   <div
+                                                      v-if="cellField.type === 'photo'">
+                                                      <input
+                                                         type="file"
+                                                         :id="'photo-' + cellField.uid"
+                                                         :accept="cellField.acceptedTypes || 'image/*'"
+                                                         @change="handlePhotoUpload($event, cellField)"
+                                                         style="
+                                                            display: none;
+                                                         " />
+
+                                                      <div
+                                                         class="photo-upload-container"
+                                                         style="padding: 15px"
+                                                         @click="triggerPhotoUpload(cellField.uid)"
+                                                         v-if="!cellField.uploadedPhoto">
+                                                         <i
+                                                            class="fas fa-cloud-upload-alt"
+                                                            style="
+                                                               font-size: 32px;
+                                                            "></i>
+                                                         <div
+                                                            class="photo-upload-text">
+                                                            Upload photo
+                                                         </div>
+                                                         <div
+                                                            class="photo-upload-hint">
+                                                            {{
+                                                            cellField.placeholder
+                                                            || 'Max 5MB' }}
+                                                         </div>
+                                                      </div>
+
+                                                      <div
+                                                         v-if="cellField.uploadedPhoto"
+                                                         class="position-relative">
+                                                         <img
+                                                            :src="cellField.uploadedPhoto"
+                                                            style="
+                                                               max-width: 100%;
+                                                               max-height: 150px;
+                                                               border-radius: 6px;
+                                                            "
+                                                            alt="Uploaded" />
+                                                         <button
+                                                            class="btn btn-sm btn-outline-danger rounded-circle column-remove-btn position-absolute top-0 end-0 m-1"
+                                                            @click.stop="removePhoto(cellField)">
+                                                            <i
+                                                               class="fas fa-times"></i>
+                                                         </button>
+                                                         <div
+                                                            class="text-center mt-2">
+                                                            <small
+                                                               class="text-muted"
+                                                               style="
+                                                                  font-size: 11px;
+                                                               "
+                                                               >{{
+                                                               cellField.photoName
+                                                               }}</small
+                                                            >
+                                                         </div>
+                                                      </div>
+                                                   </div>
+                                                </div>
+                                             </template>
+
+                                             <template
+                                                #footer
+                                                v-if="cell.fields.length === 0">
+                                                <div
+                                                   style="pointer-events: none">
+                                                   Drop here
+                                                </div>
+                                             </template>
+                                          </draggable>
+                                       </td>
+                                       <td class="text-center">
+                                          <button
+                                             class="btn btn-sm btn-outline-danger rounded-circle column-remove-btn"
+                                             @click.stop="removeTableRow(field, rowIdx)">
+                                             <i class="fas fa-trash"></i>
+                                          </button>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                                 <tfoot>
+                                    <tr>
+                                       <td
+                                          :colspan="field.table.headers.length + 1">
+                                          <button
+                                             class="btn btn-sm btn-outline-success rounded-circle column-remove-btn"
+                                             @click.stop="addTableRow(field)">
+                                             <i class="fas fa-plus"></i>
+                                          </button>
+                                       </td>
+                                    </tr>
+                                 </tfoot>
+                              </table>
+                           </template>
+
+                           <template v-else>
+                              <div>No field</div>
                            </template>
                         </div>
                      </template>
